@@ -1,0 +1,27 @@
+services:
+  # O Coração: Serviço de Agendamento (gRPC)
+  scheduling-service:
+    build: ./scheduling-service
+    container_name: scheduling-service
+    # REMOVEMOS AS LINHAS DE VOLUMES DAQUI
+    ports:
+      - "50051:50051"
+    networks:
+      - sd-network
+
+  # A Ponte: Interface de Agendamento (REST)
+  scheduling-interface:
+    build: ./scheduling-interface
+    container_name: scheduling-interface
+    ports:
+      - "8000:8000"
+    depends_on:
+      - scheduling-service
+    environment:
+      - GRPC_SERVER_ADDRESS=scheduling-service:50051
+    networks:
+      - sd-network
+
+networks:
+  sd-network:
+    driver: bridge
