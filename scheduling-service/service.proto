@@ -1,0 +1,50 @@
+syntax = "proto3"; // Define a versão da linguagem que estamos usando.
+
+package scheduling; // Um nome para organizar nosso código e evitar conflitos.
+
+// Aqui definimos o "Contrato" do seu serviço. 
+// É a lista de coisas que o seu serviço de agendamento sabe fazer.
+service SchedulingService {
+    // 1. Criar um agendamento [cite: 53, 54]
+    rpc CreateAppointment (AppointmentRequest) returns (AppointmentResponse);
+    
+    // 2. Consultar o status de uma consulta [cite: 56, 57]
+    rpc GetAppointmentStatus (StatusRequest) returns (StatusResponse);
+
+    // 3. Atualizar status (será usado quando a validação der o OK) [cite: 58, 61]
+    rpc UpdateStatus (UpdateStatusRequest) returns (AppointmentResponse);
+}
+
+// Abaixo, definimos o formato das "caixas" (mensagens) que vamos trocar.
+
+// O que o cliente precisa enviar para marcar uma consulta:
+message AppointmentRequest {
+    string patient_id = 1;      // ID do paciente
+    string doctor_id = 2;       // ID do médico [cite: 54]
+    string specialty = 3;       // Especialidade [cite: 54]
+    string date_time = 4;       // Data e Hora (ex: "2026-01-10 14:00") [cite: 54]
+}
+
+// O que o servidor (você) responde após tentar agendar:
+message AppointmentResponse {
+    string appointment_id = 1;  // ID gerado para a consulta
+    string status = 2;          // Ex: "Agendada", "Erro: Horário Ocupado" [cite: 57]
+    string message = 3;         // Mensagem detalhada para o usuário
+}
+
+// O que enviar para saber o status:
+message StatusRequest {
+    string appointment_id = 1;
+}
+
+// A resposta com o status atual:
+message StatusResponse {
+    string appointment_id = 1;
+    string status = 2;          // Ex: "Confirmada", "Cancelada" [cite: 57]
+}
+
+// Para atualizar o status (ex: de 'Agendada' para 'Confirmada')
+message UpdateStatusRequest {
+    string appointment_id = 1;
+    string new_status = 2;      // Novo status vindo da validação [cite: 61]
+}

@@ -1,0 +1,2 @@
+\\ python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service.proto
+\\ caso precise modificar o arquivo service.proto simplesmente rode esse comando novamente para atualizar os arquivos service_pb2_grpc.py e service_pb2.py no endereço : PS C:\UFC\Diciplina de Sistemas Distribuidos\projeto-sd\scheduling-service>
