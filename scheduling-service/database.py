@@ -1,12 +1,11 @@
 import sqlite3
 
 def init_db():
-    # Conecta ao arquivo de banco de dados (será criado na raiz /app/ dentro do Docker)
+    # Conecta ao SQLite (arquivo persistido no volume do container)
     conn = sqlite3.connect('agendamentos.db')
     cursor = conn.cursor()
     
-    # Cria a tabela de consultas se ela ainda não existir
-    # A estrutura está perfeitamente alinhada com as chamadas gRPC do app.py
+    # Cria o schema da tabela caso nao exista (garante idempotencia)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS consultas (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,8 +19,8 @@ def init_db():
     
     conn.commit()
     conn.close()
-    print("✅ Banco de dados SQLite inicializado (agendamentos.db).")
+    print("✅ Banco de dados SQLite inicializado.")
 
 if __name__ == '__main__':
-    # Permite rodar este script isoladamente para resetar/criar o banco
+    # Execucao isolada para criacao manual ou reset do banco
     init_db()

@@ -1,81 +1,73 @@
-Sistema Distribuído de Agendamento Médico
-Este projeto foi desenvolvido para a 3ª AP da disciplina de Sistemas Distribuídos (UFC). O sistema utiliza uma arquitetura de microserviços para gerenciar consultas médicas, garantindo persistência, concorrência e tratamento de conflitos de horários.
+🏥 Sistema Distribuído de Agendamento Médico
+Este projeto foi desenvolvido para a disciplina de Sistemas Distribuídos (UFC). O sistema gerencia agendamentos médicos através de uma arquitetura de microserviços, utilizando REST para interface externa e gRPC para comunicação interna.
 
-Arquitetura do Sistema
-O sistema é composto por três camadas principais:
+📥 Como Acessar este Módulo
 
-Client (Python Scripts): Scripts que simulam a interação do usuário final com o sistema.
 
-Scheduling Interface (REST API - FastAPI): Atua como o Gateway do sistema. Recebe requisições HTTP e as traduz para chamadas gRPC de alta performance.
-
-Scheduling Service (gRPC Server): O núcleo do sistema. Implementa a lógica de negócio, verifica conflitos de horários e gerencia o banco de dados SQLite.
-
-Fluxo de Comunicação
-Usuário (Script) ➔ REST (Porta 8000) ➔ gRPC (Porta 50051) ➔ Banco de Dados (SQLite)
-
-Tecnologias e Requisitos
-Linguagem: Python 3.13
-
-Comunicação Interna: gRPC (Protocol Buffers)
-
-Comunicação Externa: REST API (FastAPI)
-
-Containerização: Docker & Docker Compose
-
-Banco de Dados: SQLite (Persistência Local)
-
-Como Executar o Projeto
-Certifique-se de que o Docker Desktop está em execução no seu computador.
-
-Clone o repositório e acesse a branch:
+Clone o repositório (caso ainda não tenha):
 
 Bash
 
+git clone [https://github.com/gabskars/sistemas_distribuidos.git]
+cd projeto-sd
+Baixe as branches remotas e acesse a minha branch:
+
+Bash
+
+git fetch origin
 git checkout feature-agendamento-ismael
-Suba os containers (Build Automático): Na raiz do projeto, execute:
+Garanta que está na versão mais recente:
+
+Bash
+
+git pull origin feature-agendamento-ismael
+🚀 Como Executar o Projeto
+Certifique-se de que o Docker Desktop está rodando. Na raiz do projeto, execute:
 
 Bash
 
 docker-compose up --build
-Aguarde as mensagens 🚀 SERVIDOR gRPC ATIVO e Uvicorn running on http://0.0.0.0:8000 aparecerem nos logs.
+Isso vai subir automaticamente o Servidor gRPC (Porta 50051) e a Interface REST (Porta 8000).
 
-Guia de Testes (Passo a Passo)
-Com os containers rodando, abra um novo terminal e navegue até a pasta client/ para validar o sistema.
+🧪 Guia de Testes (Passo a Passo)
+Abra um novo terminal na pasta client/ para validar as funcionalidades:
 
-1. Criar um Agendamento (Caminho Feliz)
+1. Criar um Agendamento
 Bash
 
-python agendar.py "SeuNome" "Dr_Filipe" "Sistemas" "2026-01-10_14:00"
-Esperado: Mensagem de sucesso e geração de um ID da Consulta (ex: 1).
+python agendar.py "Ismael" "Dr_Filipe" "Sistemas" "2026-01-10_10:00"
+Esperado: Mensagem de sucesso e geração do ID 1.
 
-2. Validar Regra de Negócio (Teste de Conflito)
-Tente agendar para o mesmo médico no mesmo horário:
-
+2. Validar Conflito de Horário
 Bash
 
-python agendar.py "OutroPaciente" "Dr_Filipe" "Sistemas" "2026-01-10_14:00"
-Esperado: O sistema deve retornar um erro informando que o médico já possui uma consulta agendada para este horário.
+python agendar.py "Outro_Paciente" "Dr_Filipe" "Sistemas" "2026-01-10_10:00"
+Esperado: Erro de horário ocupado (prova a lógica do gRPC).
 
-3. Consultar Status do Agendamento
-Use o ID gerado no passo 1:
-
+3. Consultar Status
 Bash
 
 python status.py 1
-Esperado: Retorno do status atual (ex: Agendada).
+4. Atualizar o Status
+Bash
 
-4. Teste de Persistência
-Pare os containers com Ctrl + C.
+python atualizar.py 1 "Confirmada"
+🧹 Comandos de Manutenção
+Parar o sistema:
 
-Rode docker-compose up novamente (sem o build).
+Bash
 
-Consulte o status do ID 1 novamente. Os dados devem permanecer lá.
+docker-compose down
+Reset Total (Limpar banco e volumes):
 
-Organização dos Arquivos
-/client: Scripts agendar.py e status.py.
+Bash
 
-/scheduling-interface: API REST (FastAPI) e Dockerfile da interface.
+docker-compose down -v --remove-orphans
+Nota: Para resetar o banco SQLite, apague o arquivo agendamentos.db na pasta scheduling-service antes de subir o Docker.
 
-/scheduling-service: Servidor gRPC, service.proto, lógica de banco de dados e Dockerfile do serviço.
+📁 Estrutura
+/client: Scripts CLI (agendar, status, atualizar).
 
-docker-compose.yml: Orquestração da rede e dos containers.
+/scheduling-interface: Gateway REST (FastAPI).
+
+/scheduling-service: Servidor gRPC e SQLite.

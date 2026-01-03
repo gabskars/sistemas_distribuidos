@@ -1,25 +1,21 @@
-# Usa a imagem Python 3.13-slim para manter o container leve
 FROM python:3.13-slim
 
-# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia e instala as dependências (FastAPI, Uvicorn, gRPC, etc)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o código da interface e o arquivo service.proto para dentro do container
+# Copia os arquivos do projeto e o contrato proto
 COPY . .
 
-# GERA OS ARQUIVOS gRPC NA INTERFACE: 
-# Isso permite que a API REST saiba como conversar com o servidor gRPC
+# Compila os arquivos gRPC (stubs) a partir do service.proto
 RUN python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service.proto
 
-# GARANTIA: Define o caminho de busca do Python para evitar erros de importação
+# Garantia de que modulos gerados sejam encontrados
 ENV PYTHONPATH=$PYTHONPATH:/app
 
-# Expõe a porta 8000, que é por onde o agendar.py vai se conectar
+# Porta de comunicacao da API REST
 EXPOSE 8000
 
-# Inicia o servidor Uvicorn para rodar a API FastAPI
+# Inicializacao do servidor FastAPI com Uvicorn
 CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

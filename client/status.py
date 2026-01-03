@@ -1,19 +1,15 @@
 import requests
 import sys
 
-# Script do Lado Cliente para consultar a situação de um agendamento
-# Realiza comunicação direta via REST com a Interface de Agendamento
-
 def consultar_situacao(id_consulta):
-    # Endereço da Interface REST (API Gateway)
-    # Porta 8000 mapeada no Docker para acesso externo
+    # Endpoint da API configurado no docker-compose
     url = f"http://localhost:8000/status/{id_consulta}"
 
     try:
-        # Requisito: Operação de consulta via método GET
+        # Chamada GET para consultar o ID no banco via interface
         response = requests.get(url)
         
-        # Se a consulta for encontrada com sucesso
+        # 200 OK: ID localizado no SQLite via gRPC
         if response.status_code == 200:
             dados = response.json()
             print("\n--- 🔍 DETALHES DA CONSULTA ---")
@@ -21,27 +17,24 @@ def consultar_situacao(id_consulta):
             print(f"📊 STATUS ATUAL: {dados['status']}")
             print("-------------------------------\n")
         
-        # Tratamento de erro (Ex: ID não encontrado ou erro no servidor)
+        # Trata erros da API (404 Not Found ou 500 Internal Error)
         else:
             try:
-                # Tenta extrair a mensagem de erro formatada pela API
+                # Tenta capturar a mensagem de erro da FastAPI
                 erro_msg = response.json().get('detail', 'Consulta não localizada.')
                 print(f"❌ ERRO: {erro_msg}")
             except Exception:
-                # Caso o servidor retorne um erro bruto (HTML/Texto)
+                # Fallback para erros brutos do servidor
                 print(f"❌ ERRO NO SERVIDOR (Status {response.status_code})")
-                print(f"👉 Detalhe técnico: {response.text[:150]}")
+                print(f"👉 Info técnica: {response.text[:100]}")
             
     except Exception as e:
-        print(f"⚠️ Falha de conexão: Não foi possível alcançar a Interface REST.")
-        print(f"👉 Verifique se os containers Docker estão rodando.")
+        print(f"⚠️ Erro de conexão: Verifique se o Docker está rodando.")
 
 if __name__ == "__main__":
-    # O sistema espera exatamente 1 argumento: o ID da consulta
-    # Exemplo: python status.py 4
+    # Script espera o ID da consulta como argumento de linha de comando
     if len(sys.argv) == 2:
         consultar_situacao(sys.argv[1])
     else:
-        print("\n❌ ERRO: ID da consulta não informado.")
-        print("Uso correto: python status.py [ID_DA_CONSULTA]")
-        print("Exemplo: python status.py 10")
+        print("\n❌ ERRO: Informe o ID da consulta.")
+        print("Exemplo: python status.py 1")

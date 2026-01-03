@@ -1,27 +1,29 @@
 services:
-  # O Coração: Serviço de Agendamento (gRPC)
+  # Servidor gRPC (Backend e Persistencia)
   scheduling-service:
     build: ./scheduling-service
     container_name: scheduling-service
-    # REMOVEMOS AS LINHAS DE VOLUMES DAQUI
     ports:
       - "50051:50051"
     networks:
       - sd-network
 
-  # A Ponte: Interface de Agendamento (REST)
+  # API Gateway REST (Interface FastAPI)
   scheduling-interface:
     build: ./scheduling-interface
     container_name: scheduling-interface
     ports:
       - "8000:8000"
+    # Garante que a interface suba apos o servico gRPC
     depends_on:
       - scheduling-service
+    # Define o host do gRPC via variavel de ambiente
     environment:
       - GRPC_SERVER_ADDRESS=scheduling-service:50051
     networks:
       - sd-network
 
+# Rede isolada para comunicacao entre containers
 networks:
   sd-network:
     driver: bridge
