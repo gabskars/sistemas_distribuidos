@@ -1,59 +1,24 @@
-🏥 Módulo de Agendamento - Sistemas Distribuídos (UFC)
-Este repositório contém a minha parte da 3ª AP: o sistema de agendamento médico. A ideia aqui foi separar a lógica em microserviços pra garantir que o sistema seja escalável e não dê gargalo.
+Modulo de Agendamento - Sistemas Distribuidos UFC
+Como rodar em outra maquina:
 
-🏗️ Como o sistema funciona:
-Interface (Porta 8000): É uma API REST em FastAPI que serve como a porta de entrada.
+Clone o repositorio: git clone https://github.com/gabskars/sistemas_distribuidos.git
 
-Service (Porta 50051): É o servidor gRPC onde fica o "grosso" da lógica e a conexão com o banco.
+Entre na pasta: cd projeto-sd
 
-Banco de Dados: Usei SQLite pela praticidade de não precisar subir um servidor de banco pesado.
+Mude para a branch: git fetch origin && git checkout feature-agendamento-ismael
 
-📥 Como rodar na sua máquina 
+Como iniciar o sistema:
 
-Bash
+Na raiz do projeto, execute: docker-compose up --build
 
-# Entra na branch do agendamento
-git fetch origin
-git checkout feature-agendamento-ismael
-git pull origin feature-agendamento-ismael
+Roteiro de testes (Executar dentro da pasta client):
 
-# Sobe tudo pelo Docker (Isso já compila o gRPC e instala as libs)
-docker-compose up --build
+Criar agendamento: python agendar.py "Ismael" "Dr_Filipe" "Sistemas" "2026-01-10_10:00"
 
+Testar conflito (mesmo medico e horario): python agendar.py "Teste" "Dr_Filipe" "Sistemas" "2026-01-10_10:00"
 
-🧪 Roteiro de Testes (Siga esta ordem)
-Abra um terminal dentro da pasta client/ e rode os comandos abaixo.
+Consultar status: python status.py 1
 
-Agendar uma consulta (Caminho Feliz): 
-python agendar.py "Ismael" "Dr_Filipe" "Sistemas" "2026-01-10_10:00" 
-Dica: Se for o primeiro teste, o ID gerado vai ser o 1.
+Comandos de reset:
 
-Testar erro de conflito (Mesmo médico e horário): 
-python agendar.py "Teste" "Dr_Filipe" "Sistemas" "2026-01-10_10:00" 
-O gRPC deve bloquear e retornar que o horário está ocupado.
-
-
-
-Ver o status da consulta: 
-python status.py 1
-
-Confirmar a consulta (Atualizar status): 
-python atualizar.py 1 "Confirmada"
-
-
-
-🧹 Comandos Úteis e Reset
-
-Para parar tudo: 
-docker-compose down
-
-Para limpar volumes e redes: 
-docker-compose down -v --remove-orphans
-
-
-📂 O que tem em cada pasta:
-/client: Scripts para você testar no terminal.
-
-/scheduling-interface: Onde está a API REST.
-
-/scheduling-service: Onde está o servidor gRPC e o banco.
+Para parar e limpar o ambiente: docker-compose down -v --remove-orphans
