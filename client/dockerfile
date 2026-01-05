@@ -1,0 +1,9 @@
+FROM python:3.10-slim
+WORKDIR /app
+# Instala as dependências específicas do cliente
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+# Copia os scripts de teste da Gabi e os seus
+COPY . .
+# Mantém o container aberto para você rodar os testes
+CMD ["python3"]

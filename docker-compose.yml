@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  users:
+    build: ./users
+    ports:
+      - "5001:5000"
+
+  scheduling:
+    build: ./scheduling
+    ports:
+      - "5002:5000"
+    depends_on:
+      - users
+      - validation
+      - notifications
+
+  validation:
+    build: ./validation
+    ports:
+      - "5003:5000"
+
+  notifications:
+    build: ./notifications
+    depends_on:
+      - rabbitmq
+
+  client:
+    build: ./client
+    stdin_open: true
+    tty: true
+    depends_on:
+      - users
+      - scheduling
+      - notifications
+      - rabbitmq
