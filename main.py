@@ -9,6 +9,7 @@ todos os serviços do Lado Servidor.
 import threading
 import time
 
+
 # Importação das interfaces dos serviços
 from users.interface import start_user_service
 from scheduling.interface import start_scheduling_service

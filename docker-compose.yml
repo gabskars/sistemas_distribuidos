@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  consumer:
+    build: .
+    container_name: consumer
+    command: python consumer.py
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  producer:
+    build: .
+    container_name: producer
+    command: python producer.py
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
