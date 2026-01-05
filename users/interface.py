@@ -1,13 +1,31 @@
-import time
+from xmlrpc.server import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCRequestHandler
+from service import UserService
+
+
+class RequestHandler(SimpleXMLRPCRequestHandler):
+    rpc_paths = ('/RPC2',)
 
 
 def start_user_service():
     """
-    Serviço de Usuários
-    Responsável por cadastro, autenticação e perfis.
-    Tecnologia de comunicação: (definir depois)
+    Interface RPC do Serviço de Usuários
+    Responsável por expor remotamente as operações de cadastro e gerenciamento.
+    Tecnologia de comunicação: RPC (XML-RPC)
     """
-    print("[UserService] Serviço de Usuários iniciado.")
+    user_service = UserService()
 
-    while True:
-        time.sleep(1)
+    server = SimpleXMLRPCServer(
+        ("0.0.0.0", 8000),
+        requestHandler=RequestHandler,
+        allow_none=True
+    )
+
+    server.register_instance(user_service)
+
+    print("[UserService] Interface RPC iniciada na porta 8000.")
+    server.serve_forever()
+
+
+if __name__ == "__main__":
+    start_user_service()
