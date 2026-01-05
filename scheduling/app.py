@@ -7,15 +7,15 @@ import service_pb2_grpc
 
 app = FastAPI()
 
-# No Docker, como o gRPC e o FastAPI rodam no mesmo container, usamos localhost
+
 GRPC_HOST = os.getenv("GRPC_HOST", "localhost")
 
 def get_stub():
-    """Configura o canal de comunicação gRPC"""
+    """Configuração do canal de comunicação gRPC"""
     channel = grpc.insecure_channel(f"{GRPC_HOST}:50051")
     return service_pb2_grpc.SchedulingServiceStub(channel)
 
-# --- SUAS ROTAS ORIGINAIS (gRPC + SQLite) ---
+
 
 @app.post("/agendar")
 def agendar(paciente: str, medico: str, especialidade: str, horario: str):
@@ -52,27 +52,27 @@ def confirmar_consulta(id: int):
     except Exception:
         raise HTTPException(status_code=500, detail="Erro ao atualizar status via gRPC")
 
-# --- CAMADA DE COMPATIBILIDADE (Para evitar "BO" com o código da Gabi) ---
+# --- CAMADA DE COMPATIBILIDADE  ---
 
 @app.post("/appointments")
 def schedule_legacy(data: dict):
-    """Mapeia a rota que a Gabi criou para a sua lógica gRPC"""
-    # Extrai os dados no formato que o código dela esperava
+    
     return agendar(
         paciente=data.get("paciente"),
         medico=data.get("medico"),
-        especialidade=data.get("especialidade", "Geral"), # Default caso ela não envie
+        especialidade=data.get("especialidade", "Geral"), 
         horario=data.get("horario")
     )
 
+
 @app.get("/appointments")
 def list_legacy():
-    """Retorna uma mensagem informativa para o GET que ela usava"""
+
     return {
         "aviso": "Sistema atualizado para persistência SQLite.",
         "instrucao": "Use /status/{id} para consultas individuais."
     }
 
 if __name__ == "__main__":
-    # Roda na porta 5000 conforme definido no docker-compose do grupo
+    
     uvicorn.run(app, host="0.0.0.0", port=5000)

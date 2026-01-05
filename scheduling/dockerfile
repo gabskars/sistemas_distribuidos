@@ -1,3 +1,4 @@
+
 FROM python:3.10-slim
 WORKDIR /app
 COPY requirements.txt .
@@ -7,3 +8,4 @@ RUN python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service.p
 
 # Comando para rodar o gRPC (em background) e o FastAPI juntos
 CMD python service_grpc.py & uvicorn app:app --host 0.0.0.0 --port 5000
+

@@ -1,10 +1,7 @@
-<<<<<<< HEAD
+
 grpcio==1.60.0
 grpcio-tools==1.60.0
 fastapi==0.109.0
 uvicorn==0.27.0
 requests==2.31.0
-=======
-flask
-requests
->>>>>>> 8023b494537855fb5709809a9416342d96c9219d
+
