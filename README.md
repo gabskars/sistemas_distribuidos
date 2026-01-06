@@ -1,6 +1,5 @@
-============================================================
+
        PROJETO DE SISTEMAS DISTRIBUIDOS - AGENDAMENTO
-============================================================
 
 Este sistema utiliza gRPC para comunicacao entre o cliente 
 e o servidor de agendamento, com integracao ao RabbitMQ.
@@ -32,5 +31,6 @@ RESOLUCAO DE PROBLEMAS (RESET):
 Caso o container nao suba ou de erro de arquivo faltando:
 docker-compose down -v
 docker-compose up --build -d
+
 
 ============================================================
