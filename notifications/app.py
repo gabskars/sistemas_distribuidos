@@ -7,22 +7,22 @@ import sys
 RABBITMQ_HOST = "rabbitmq"
 QUEUE_NAME = "notifications"
 
-# 1. IMPORTANTE: Inicializa como None para evitar o NameError
+# Inicializa como None para evitar o NameError
 connection = None
 
 try:
     print(f"⏳ Aguardando RabbitMQ em {RABBITMQ_HOST}...")
     
-    # 2. Tenta conectar (com um pequeno retry manual para estabilidade no Docker)
-    for i in range(5):
+    # Tenta conectar (com retry manual para estabilidade no Docker)
+    for i in range(15):
         try:
             connection = pika.BlockingConnection(
-                pika.ConnectionParameters(host=RABBITMQ_HOST)
+                pika.ConnectionParameters(host=RABBITMQ_HOST, connection_attempts=3, retry_delay=2)
             )
             break 
         except pika.exceptions.AMQPConnectionError:
-            print(f"  (Tentativa {i+1}/5) RabbitMQ ainda não está pronto, aguardando...")
-            time.sleep(5)
+            print(f"  (Tentativa {i+1}/15) RabbitMQ ainda não está pronto, aguardando...")
+            time.sleep(10)
     
     if not connection:
         print("❌ Não foi possível conectar ao RabbitMQ após várias tentativas.")
@@ -38,33 +38,42 @@ try:
     )
     
     print(f"✅ Conectado ao RabbitMQ")
-    print(f"📤 Publicador iniciado - Fila: {QUEUE_NAME}\n")
+    print(f"📥 Consumidor iniciado - Fila: {QUEUE_NAME}\n")
     
-    # Loop de publicação (Simulação de envio de notificações)
-    while True:
-        msg = {
-            "mensagem": "Consulta atualizada",
-            "status": "CONFIRMADA",
-            "timestamp": time.time()
-        }
-        
-        channel.basic_publish(
-            exchange="",
-            routing_key=QUEUE_NAME,
-            body=json.dumps(msg),
-            properties=pika.BasicProperties(
-                delivery_mode=2  # Mensagem persistente
-            )
-        )
-        
-        print(f"📨 Notificação enviada: {msg}")
-        time.sleep(10)
+    # Callback para processar mensagens
+    def callback(ch, method, properties, body):
+        try:
+            msg = json.loads(body)
+            print(f"📨 Notificação recebida: {msg}")
+            
+            # Processar a notificação aqui
+            # (enviar email, SMS, push notification, etc.)
+            
+            # Confirmar que a mensagem foi processada
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+            print(f"✅ Notificação processada com sucesso\n")
+            
+        except Exception as e:
+            print(f"❌ Erro ao processar notificação: {e}")
+            # Rejeitar a mensagem e recolocá-la na fila
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+    
+    # Configurar o consumidor
+    channel.basic_qos(prefetch_count=1)  # Processa uma mensagem por vez
+    channel.basic_consume(
+        queue=QUEUE_NAME,
+        on_message_callback=callback,
+        auto_ack=False
+    )
+    
+    print("🔄 Aguardando mensagens...")
+    channel.start_consuming()
         
 except Exception as e:
-    print(f"❌ Erro crítico no Publicador: {e}")
+    print(f"❌ Erro crítico no Consumidor: {e}")
 
 finally:
-    # 3. Fechamento seguro: verifica se a variável existe e se está aberta
+    # Fechamento seguro
     if connection and not connection.is_closed:
         connection.close()
         print("🔌 Conexão com RabbitMQ fechada.")
