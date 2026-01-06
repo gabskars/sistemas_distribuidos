@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package scheduling;
+
+service SchedulingService {
+  rpc CreateAppointment (AppointmentRequest) returns (AppointmentResponse);
+  rpc GetStatus (StatusRequest) returns (StatusResponse) ;
+  rpc UpdateStatus (UpdateRequest) returns (UpdateResponse);
+}
+
+message AppointmentRequest {
+  string paciente = 1;
+  string medico = 2;
+  string especialidade = 3;
+  string horario = 4;
+}
+
+message AppointmentResponse {
+  int32 id_consulta = 1;
+  string mensagem = 2;
+  bool sucesso = 3; // Adicionado para bater com seu app.py
+}
+
+message StatusRequest {
+  int32 id_consulta = 1;
+}
+
+message StatusResponse {
+  string status = 1;
+}
+
+message UpdateRequest {
+  int32 id_consulta = 1;
+  string novo_status = 2;
+}
+
+message UpdateResponse {
+  bool sucesso = 1;
+  string mensagem = 2;
+}
