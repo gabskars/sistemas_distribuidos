@@ -1,39 +1,36 @@
-# sistemas_distribuidos
+============================================================
+       PROJETO DE SISTEMAS DISTRIBUIDOS - AGENDAMENTO
+============================================================
 
-📂 Guia do Desenvolvedor: Módulo de Agendamento
-Este módulo gerencia o ciclo de vida das consultas médicas. Se você está puxando estas alterações, o código já foi validado e está pronto para uso.
+Este sistema utiliza gRPC para comunicacao entre o cliente 
+e o servidor de agendamento, com integracao ao RabbitMQ.
 
-🚀 Como Inicializar o Ambiente
-Para subir todos os serviços e garantir que as alterações mais recentes sejam aplicadas, use:
+COMO EXECUTAR:
 
-PowerShell
+1. Na pasta raiz, rode o comando:
+   docker-compose up --build -d
 
-docker-compose up --build
-⚠️ Resolução de Problemas no Build (Ambiente)
-Como o código do módulo está estável, se o comando acima falhar com mensagens como failed to execute bake ou file already closed, não se desespere:
+2. Aguarde os containers ficarem com status "Up".
 
-Tente Novamente: Muitas vezes é um erro de sincronização do Docker Desktop com o Windows. Um segundo docker-compose up --build costuma resolver.
+COMO TESTAR O MENU:
 
-Limpe o Cache: Se o erro persistir, o cache do construtor pode estar corrompido. Rode: docker builder prune -f
+1. Use o comando abaixo para entrar no terminal interativo:
+   docker exec -it sistemas_distribuidos-client-1 python3 scheduling_client.py
 
-Reinicie o Docker: Se nada funcionar, reinicie o Docker Desktop. O código em si não possui erros de sintaxe que impeçam o build.
+FUNCIONALIDADES DO MENU:
 
-🧪 Como Testar as Funcionalidades
-Para garantir que a comunicação gRPC e a persistência no SQLite estão funcionando:
+- OPCAO 1: Realiza o agendamento completo. 
+  OBS: Use a data no formato AAAA-MM-DD HH:MM para evitar erros.
+  
+- OPCAO 2: Consulta se a consulta existe e qual o status.
 
-Entre no Container do Cliente: docker exec -it sistemas_distribuidos-client-1 bash
+- OPCAO 3: Funcao de compatibilidade para forcar a atualizacao
+  de um status no banco de dados.
 
-Rode o Script: python3 scheduling_client.py
+RESOLUCAO DE PROBLEMAS (RESET):
 
-Siga o Fluxo:
+Caso o container nao suba ou de erro de arquivo faltando:
+docker-compose down -v
+docker-compose up --build -d
 
-Agendar (Opção 1): Crie uma consulta e anote o ID (ex: ID 1).
-
-Verificar (Opção 2): Verifique se o status é "Agendada".
-
-Confirmar (Opção 3): Altere o status para "Confirmada".
-
-Conflito: Tente agendar o mesmo médico no mesmo horário. O sistema deve retornar um erro 400, provando a eficácia da lógica de negócio no gRPC.
-
-🔍 Verificação Interna (Opcional)
-Se precisar confirmar a existência física do banco de dados (que não aparece no Windows por falta de volume mapeado), rode: docker exec -it sistemas_distribuidos-scheduling-1 ls O arquivo agendamentos.db deve estar listado lá.
+============================================================

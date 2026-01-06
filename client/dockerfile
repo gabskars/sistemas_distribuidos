@@ -1,8 +1,16 @@
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 WORKDIR /client
+
+# Instala as bibliotecas
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copia os arquivos
 COPY . .
 
-CMD ["bash"]
+# ATENÇÃO: Descomentei a linha para ficar automático para a Gabi
+RUN python -m grpc_tools.protoc -I. --python_out=. --grpc_python_out=. service.proto
+
+# Inicia o menu automaticamente
+CMD ["python3", "scheduling_client.py"]

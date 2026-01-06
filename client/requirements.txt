@@ -1,3 +1,6 @@
 requests==2.31.0
+grpcio
+grpcio-tools
 requests
 pika
+protobuf
