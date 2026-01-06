@@ -39,5 +39,4 @@ services:
       - users
       - scheduling
       - notifications
-      - rabbitmq
-      
+      - rabbitmq      
